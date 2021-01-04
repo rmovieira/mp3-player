@@ -20,6 +20,36 @@ async function routes(fastify, options) {
         const resultado = await arquivos.lerArquivos();
         return Array.from(resultado);
     });
+
+    fastify.get('/musica', {
+        schema: {
+            description: 'Pesquisa textual',
+            tags: ['musica'],
+            summary: 'Pesquisa por um texto no nome, album, artista e genero da música.',
+            querystring: {
+                type: 'object',
+                properties: {
+                    texto: { type: 'string' },
+                }
+            },
+            response: {
+                200: {
+                    description: 'Succesful response',
+                    type: 'array',
+                    properties: {
+                        items: { type: 'string' }
+                    }
+                }
+            }
+        }
+    }, async (request, reply) => {
+        const { texto } = request.query;
+        const resultado = await arquivos.pesquisar(texto);
+        reply
+            .code(200)
+            .header('Content-Type', 'application/json; charset=utf-8')
+            .send(resultado);
+    });
 }
 
 // fastify.get('/musica', function (request, reply) {
