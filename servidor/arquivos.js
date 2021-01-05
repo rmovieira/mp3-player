@@ -1,6 +1,7 @@
 const fs = require('fs');
 const mm = require('music-metadata');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 const lunr = require('lunr');
 // require("lunr-languages/lunr.stemmer.support")(lunr)
 // require("lunr-languages/lunr.pt")(lunr)
@@ -9,11 +10,15 @@ let arquivosCarregados;
 let indiceTextual;
 let carregandoArquivos = false;
 
+const recuperarTodas = () => {
+    return Array.from(arquivosCarregados.values());
+}
+
 const indexar = async () => {
     try {
         indiceTextual = lunr(function () {
             // this.use(lunr.pt)
-            this.ref('arquivo');
+            this.ref('id');
             this.field('texto');
             // this.field('titulo');
             // this.field('genero');
@@ -21,9 +26,9 @@ const indexar = async () => {
             // this.field('artista');
             // this.field('artistas');
             for (let arquivoCarregado of arquivosCarregados) {
-                const { genero, titulo, artistas, album, arquivo } = arquivoCarregado[1];
+                const { genero, titulo, artistas, album, arquivo, id } = arquivoCarregado[1];
                 const texto = [].concat(genero).concat(album).concat(titulo).concat(artistas).join(' ');
-                const dadosParaIndexar = { texto, arquivo };
+                const dadosParaIndexar = { texto, id };
                 this.add(dadosParaIndexar);
             }
         });
@@ -52,8 +57,9 @@ const lerArquivos = async (diretorio) => {
                 try {
                     const metadata = await mm.parseFile(caminhoArquivo);
                     const { genre: genero, album, title: titulo, artist: artista, artists: artistas } = metadata.common;
-                    const arquivo = { genero, titulo, artistas, album, arquivo: caminhoArquivo };
-                    arquivosCarregados.set(caminhoArquivo, arquivo);
+                    const uuid = uuidv4();
+                    const arquivo = { id: uuid, genero, titulo, artistas, album, arquivo: caminhoArquivo };
+                    arquivosCarregados.set(uuid, arquivo);
                 } catch (erro) {
                     console.error('Não foi possível recuperar metadados do arquivo', caminhoArquivo, erro.message);
                 }
@@ -80,6 +86,16 @@ const pesquisar = texto => {
     return saida;
 }
 
+
+const recuperarArquivo = idArquivo => {
+    const arquivo = arquivosCarregados.get(idArquivo);
+    if (!arquivo) {
+        return;
+    }
+    const stream = fs.createReadStream(arquivo.arquivo);
+    return stream;
+}
+
 (async function () {
     arquivosCarregados = new Map();
     const diretorio = 'C:\\Users\\Romulo\\Documents\\mp3-player\\servidor\\musicas';
@@ -95,4 +111,6 @@ const pesquisar = texto => {
 module.exports = {
     lerArquivos,
     pesquisar,
+    recuperarArquivo,
+    recuperarTodas,
 }

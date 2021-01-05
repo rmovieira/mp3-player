@@ -17,8 +17,8 @@ async function routes(fastify, options) {
             }
         }
     }, async (request, reply) => {
-        const resultado = await arquivos.lerArquivos();
-        return Array.from(resultado);
+        const resultado = await arquivos.recuperarTodas();
+        return resultado;
     });
 
     fastify.get('/musica', {
@@ -50,12 +50,39 @@ async function routes(fastify, options) {
             .header('Content-Type', 'application/json; charset=utf-8')
             .send(resultado);
     });
-}
 
-// fastify.get('/musica', function (request, reply) {
-//     const fs = require('fs')
-//     const stream = fs.createReadStream('file_example_MP3_700KB.mp3');
-//     reply.send(stream);
-// });
+    fastify.get('/musica/:id', {
+        schema: {
+            description: 'Recupera o arquivo',
+            tags: ['musica'],
+            summary: 'Obtem do servidor o arquivo desejado.',
+            params: {
+                type: 'object',
+                properties: {
+                    id: {
+                        type: 'string',
+                        description: 'Identificador único do arquivo'
+                    }
+                }
+            },
+            response: {
+                200: {
+                    description: 'Succesful response',
+                    type: 'array',
+                    properties: {
+                        items: { type: 'string' }
+                    }
+                }
+            }
+        }
+    }, async (request, reply) => {
+        const { id } = request.params;
+        const streamDoArquivo = await arquivos.recuperarArquivo(id);
+        reply
+            .code(200)
+            .header('Content-Type', 'application/octet-stream')
+            .send(streamDoArquivo);
+    });
+}
 
 module.exports = routes;
