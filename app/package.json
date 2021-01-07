@@ -10,8 +10,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "axios": "^0.21.1",
+    "lodash.debounce": "^4.0.8",
     "react": "16.13.1",
     "react-native": "0.63.4",
+    "react-native-navigation": "^7.8.0",
     "react-native-swift": "^1.2.3",
     "react-native-track-player": "^1.2.3"
   },

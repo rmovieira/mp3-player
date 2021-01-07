@@ -1,58 +1,70 @@
+// In index.js of a new project
 import React from 'react';
-import {
-  SafeAreaView,
-  Text,
-  View,
-} from 'react-native';
-import TrackPlayer from 'react-native-track-player';
+import { View, Text, Button, StyleSheet } from 'react-native';
+import { Navigation } from 'react-native-navigation';
+
+import TelaInicial from './src/TelaInicial';
+import TelaPesquisa from './src/TelaPesquisa';
+import TelaTocador from './src/TelaTocador';
 
 
+Navigation.registerComponent('TelaInicial', () => TelaInicial);
+Navigation.registerComponent('TelaPesquisa', () => TelaPesquisa);
+Navigation.registerComponent('TelaTocador', () => TelaTocador);
 
-export default class App extends React.Component {
+Navigation.setDefaultOptions({
+    // statusBar: {
+    //     backgroundColor: '#4d089a'
+    // },
+    layout: {
+        backgroundColor: 'whitesmoke',
+        componentBackgroundColor: 'whitesmoke',
+    },
+    topBar: {
+        title: {
+            color: 'white',
+            elevation: 0,
+        },
+        background: {
+            color: 'whitesmoke',
+            animate: true,
+        }
+    },
+});
 
-  state = {
-    tocando: 'parado',
-  }
+const stackInicial = {
+    stack: {
+        children: [
+            {
+                component: {
+                    name: 'TelaInicial'
+                },
+            },
+        ]
+    },
+};
 
-  componentDidMount() {
-    console.log('componentDidMount');
-    TrackPlayer.setupPlayer().then(() => {
-      const track = {
-        id: 'unique track id', // Must be a string, required
+const stackConfigurada = {
+    stack: {
+        children: [
+            {
+                component: {
+                    name: 'TelaPesquisa'
+                },
+            },
+        ]
+    },
+};
 
-        // url: 'https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_700KB.mp3', // Load media from the network
-        url: 'http://192.168.15.6:3000/musica', // Load media from the network
-        // url: require('./avaritia.ogg'), // Load media from the app bundle
-        // url: 'file:///storage/sdcard0/Music/avaritia.wav', // Load media from the file system 
+Navigation.events().registerAppLaunchedListener(async () => {
+    Navigation.setRoot({ root: stackInicial });
+});
 
-        title: 'Avaritia',
-        artist: 'deadmau5',
-        album: 'while(1<2)',
-        genre: 'Progressive House, Electro House',
-        date: '2014-05-20T07:00:00+00:00', // RFC 3339
-
-        artwork: 'http://example.com/avaritia.png', // Load artwork from the network
-        // artwork: require('./avaritia.jpg'), // Load artwork from the app bundle
-        // artwork: 'file:///storage/sdcard0/Downloads/artwork.png' // Load artwork from the file system
-      };
-      TrackPlayer.add([track]).then(function () {
-        // The tracks were added
-      });
-    });
-
-
-    setTimeout(() => {
-      this.setState({ tocando: 'tocando' });
-      TrackPlayer.play();
-    }, 3000);
-  }
-
-  render() {
-    return (
-      <View>
-        <Text>{this.state.tocando}</Text>
-      </View>
-    )
-  }
-
-}
+const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'whitesmoke'
+    }
+});
