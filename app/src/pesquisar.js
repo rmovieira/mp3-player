@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash.debounce';
 
 const Pesquisar = (props) => {
-    const [texto, setTexto] = React.useState('joe');
+    const [texto, setTexto] = React.useState('bic');
     const [pesquisando, setPesquisando] = React.useState(false);
     const pesquisar = React.useCallback(async (texto) => {
         if (!texto) {

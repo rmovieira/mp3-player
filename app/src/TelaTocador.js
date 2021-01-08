@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
+import { Navigation } from 'react-native-navigation';
+import TrackPlayer, { STATE_NONE } from 'react-native-track-player';
 
 import Tocador from './Tocador';
 
-const TelaTocador = ({ musica }) => {
+const TelaTocador = ({ musica, componentId }) => {
     return (
         <View style={styles.geral}>
             <Tocador musica={musica} />
@@ -13,6 +15,7 @@ const TelaTocador = ({ musica }) => {
 };
 TelaTocador.propTypes = {
     musica: PropTypes.object.isRequired,
+    componentId: PropTypes.string.isRequired,
 };
 
 TelaTocador.options = {
