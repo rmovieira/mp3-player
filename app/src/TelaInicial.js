@@ -1,7 +1,8 @@
 import React from 'react';
 import { Image, View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { Navigation } from 'react-native-navigation';
-import { conectarNoServidor } from './servidor';
+import { conectarNoServidor } from './Servidor';
+import PropTypes from 'prop-types';
 
 const TelaInicial = ({ componentId }) => {
     const [servidor, setServidor] = React.useState('http://192.168.15.6:3000');
@@ -9,21 +10,18 @@ const TelaInicial = ({ componentId }) => {
     async function conectar() {
         setConectando(true);
         const conectado = await conectarNoServidor(servidor);
+        setConectando(false);
         if (conectado) {
             //TODO acho que aqui nao é o melhor lugar para trocar as rotas root
-            Navigation.setStackRoot(componentId, {
+            Navigation.push(componentId, {
                 component: {
                     name: 'TelaPesquisa',
-                }
+                },
+
             });
-            return;
         }
-        setConectando(false);
 
     }
-    React.useEffect(() => {
-        console.log(servidor);
-    });
     return (
         <View style={styles.root}>
             <Image
@@ -42,6 +40,7 @@ const TelaInicial = ({ componentId }) => {
                 disabled={conectando}
                 title={'Conectar'}
                 onPress={conectar}
+                color={'black'}
             />
         </View>
     );
@@ -53,12 +52,15 @@ TelaInicial.options = {
     }
 };
 
+TelaInicial.propTypes = {
+    componentId: PropTypes.string.isRequired,
+};
+
 const styles = StyleSheet.create({
     root: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        // backgroundColor: 'whitesmoke'
     },
     tinyLogo: {
         width: 250,
@@ -70,7 +72,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     descricao: {
-        fontSize: 22
+        fontSize: 22,
     }
 });
 

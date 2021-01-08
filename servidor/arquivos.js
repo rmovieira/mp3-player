@@ -57,8 +57,9 @@ const lerArquivos = async (diretorio) => {
                 try {
                     const metadata = await mm.parseFile(caminhoArquivo);
                     const { genre: genero, album, title: titulo, artist: artista, artists: artistas } = metadata.common;
+                    const { duration: duracao } = metadata.format;
                     const uuid = uuidv4();
-                    const arquivo = { id: uuid, genero, titulo, artistas, album, arquivo: caminhoArquivo };
+                    const arquivo = { id: uuid, genero, titulo, artistas, album, duracao, arquivo: caminhoArquivo };
                     arquivosCarregados.set(uuid, arquivo);
                 } catch (erro) {
                     console.error('Não foi possível recuperar metadados do arquivo', caminhoArquivo, erro.message);

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Navigation } from 'react-native-navigation';
 import { View, Text, Pressable, FlatList, StyleSheet } from 'react-native';
-import Pesquisar from './pesquisar';
+import PropTypes from 'prop-types';
+import Pesquisar from './Pesquisar';
 
-import { pesquisarMusica } from './servidor';
-
+import { pesquisarMusica } from './Servidor';
 
 const Musica = ({ item, tocarMusica }) => {
     const tocar = React.useCallback(() => {
@@ -14,21 +14,25 @@ const Musica = ({ item, tocarMusica }) => {
         <Pressable onPress={tocar}>
             <View style={styles.musica}>
                 <Text style={styles.tituloMusica}>{item.titulo}</Text>
-                <Text>{item.artistas[0]}</Text>
+                <Text style={styles.artista}>{item.artistas[0]}</Text>
             </View>
         </Pressable>
     );
 };
+Musica.propTypes = {
+    item: PropTypes.object.isRequired,
+    tocarMusica: PropTypes.func.isRequired,
+};
 
 const TelaPesquisa = (props) => {
     const [resultadoPesquisa, setResultadoPesquisa] = React.useState([]);
-    const pesquisar = async (texto) => {
+    const pesquisar = React.useCallback(async (texto) => {
         if (!texto) {
             return;
         }
         const resultado = await pesquisarMusica(texto);
         setResultadoPesquisa(resultado);
-    };
+    });
 
     function tocarMusica(musica) {
         Navigation.push(props.componentId, {
@@ -49,59 +53,59 @@ const TelaPesquisa = (props) => {
 
     return (
         <View style={styles.geral}>
-            <Text style={styles.descricao} numberOfLines={2}>
+            <Text style={styles.descricao} numberOfLines={3}>
                 {'Pesquise por nome da música, artista, banda, album...'}
             </Text>
             <Pesquisar pesquisar={pesquisar} />
             <FlatList
+                style={styles.lista}
                 data={resultadoPesquisa}
                 renderItem={renderItem}
-                keyExtractor={item => item.id}
+                keyExtractor={React.useCallback(item => item.id)}
             />
         </View>
     );
 };
 
+TelaPesquisa.propTypes = {
+    componentId: PropTypes.string.isRequired,
+};
+
 TelaPesquisa.options = {
     topBar: {
-        visible: false,
-    }
+        title: {
+            color: 'black'
+        },
+        elevation: 0,
+    },
 };
 
 const styles = StyleSheet.create({
     geral: {
         flex: 1,
+        marginBottom: 10,
+        marginHorizontal: 10,
         alignItems: 'center',
-        borderWidth: 1
+    },
+    lista: {
+        width: '100%',
     },
     descricao: {
-        textAlign: 'center',
-        fontSize: 22,
-        paddingHorizontal: 20,
-        height: 55,
+        fontSize: 28,
+        height: 60,
         justifyContent: 'flex-start',
-    },
-    containerPesquisa: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '80%',
-        borderBottomWidth: 1,
-    },
-    pesquisa: {
-        flex: 1,
-    },
-    indicadorCarregando: {
-        flex: .1,
-        justifyContent: 'center',
+        marginBottom: 5,
     },
     musica: {
         flex: 1,
+        padding: 5,
     },
     tituloMusica: {
-        fontSize: 20,
+        fontSize: 32,
     },
-
-
+    artista: {
+        fontSize: 18,
+    },
 });
 
 export default TelaPesquisa;

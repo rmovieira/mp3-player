@@ -1,20 +1,59 @@
 import React from 'react';
-import { View, ActivityIndicator, Button, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import PropTypes from 'prop-types';
 import TrackPlayer from 'react-native-track-player';
-import debounce from 'lodash.debounce';
+import Icon from 'react-native-vector-icons/Entypo';
+import Progresso from './Progresso';
+import { servidorAtual } from './Servidor';
 
-import { obterMusica } from './servidor';
-
-const Tocador = ({ musica }) => {
-    const [playerConfigurado, setPlayerConfigurado] = React.useState(false);
+const Controlador = () => {
+    const [tocando, setTocando] = React.useState(false);
 
     const tocar = React.useCallback(() => {
         TrackPlayer.play();
+        setTocando(true);
     });
 
     const parar = React.useCallback(() => {
         TrackPlayer.stop();
+        setTocando(false);
     });
+
+    const pause = React.useCallback(() => {
+        TrackPlayer.pause();
+        setTocando(false);
+    });
+
+    return (
+        <View style={styles.controladorGeral}>
+            <View style={styles.controladorBotoes}>
+                {
+                    tocando
+                    &&
+                    <Icon name="controller-stop" size={80} color="black" onPress={parar} />
+                }
+            </View>
+            <View style={styles.controladorBotoes}>
+                {
+                    tocando ?
+                        <Icon name="controller-paus" size={80} color="black" onPress={pause} />
+                        :
+                        <Icon name="controller-play" size={80} color="black" onPress={tocar} />
+                }
+            </View>
+            <View style={styles.controladorBotoes}>
+                {
+                    //apenas para ocupar o espaço
+                }
+            </View>
+
+        </View>
+    );
+};
+
+const Tocador = ({ musica }) => {
+    const [playerConfigurado, setPlayerConfigurado] = React.useState(false);
+
 
     React.useEffect(() => {
         if (playerConfigurado) {
@@ -24,17 +63,13 @@ const Tocador = ({ musica }) => {
             await TrackPlayer.setupPlayer();
             setPlayerConfigurado(true);
             const track = {
-                id: musica.id, // Must be a string, required
-
-                // url: 'https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_700KB.mp3', // Load media from the network
-                url: `http://192.168.15.6:3000/musica/${musica.id}`, // Load media from the network
-                // url: require('./avaritia.ogg'), // Load media from the app bundle
-                // url: 'file:///storage/sdcard0/Music/avaritia.wav', // Load media from the file system 
-
+                id: musica.id,
+                url: `${servidorAtual()}/musica/${musica.id}`,
                 title: musica.titulo,
                 artist: musica.artistas[0],
                 album: musica.album,
                 genre: musica.genero,
+                duration: musica.duracao,
             };
             TrackPlayer.add([track]);
         };
@@ -42,33 +77,46 @@ const Tocador = ({ musica }) => {
     }, []);
 
     return (
-        <View style={styles.containerPesquisa}>
-            <Button
-                title={'tocar'}
-                onPress={tocar}
-            />
-            <Button
-                title={'parar'}
-                onPress={parar}
-            />
+        <View style={styles.geral}>
+            <View style={styles.descricao}>
+                <Text style={styles.titulo}>{musica.titulo}</Text>
+                <Text style={styles.artista}>{musica.artistas[0]}</Text>
+            </View>
+            <Progresso duracao={musica.duracao} />
+            <View style={styles.tocador}>
+                <Controlador />
+            </View>
         </View>
     );
 };
+Tocador.propTypes = {
+    musica: PropTypes.object.isRequired,
+};
 
 const styles = StyleSheet.create({
-    containerPesquisa: {
-        flexDirection: 'row',
+    geral: {
         justifyContent: 'space-between',
-        width: '80%',
-        borderBottomWidth: 1,
-    },
-    pesquisa: {
         flex: 1,
     },
-    indicadorCarregando: {
-        flex: .1,
+    descricao: {
+        flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
     },
+    titulo: {
+        fontSize: 32,
+        textAlign: 'center',
+    },
+    artista: {
+        fontSize: 22,
+        textAlign: 'center',
+    },
+    tocador: {
+        flexDirection: 'row',
+        flex: 1,
+    },
+    controladorGeral: { width: '100%', flex: 1, flexDirection: 'row', alignItems: 'center' },
+    controladorBotoes: { width: '100%', flex: 1, alignSelf: 'center', justifyContent: 'center', alignItems: 'center' },
 });
 
 export default Tocador;

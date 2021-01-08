@@ -11,8 +11,11 @@ const configuracaoPadrao = () => {
     };
 };
 
+export const servidorAtual = () => {
+    return servidorConfigurado;
+};
+
 export const conectarNoServidor = async servidor => {
-    // console.log('conectar: ' + servidor || SERVIDOR_LOCAL);
     if (servidor) {
         servidorConfigurado = servidor;
         if (!servidorConfigurado.startsWith('http')) {

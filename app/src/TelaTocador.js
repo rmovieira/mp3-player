@@ -1,35 +1,36 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import PropTypes from 'prop-types';
 
-import Tocador from './tocador';
-const TelaTocador = (props) => {
+import Tocador from './Tocador';
+
+const TelaTocador = ({ musica }) => {
     return (
-        <View style={styles.root}>
-            <Tocador musica={props.musica} />
+        <View style={styles.geral}>
+            <Tocador musica={musica} />
         </View>
     );
+};
+TelaTocador.propTypes = {
+    musica: PropTypes.object.isRequired,
 };
 
 TelaTocador.options = {
     topBar: {
         title: {
-            text: 'Mp3 player',
             color: 'black'
         },
-        // background: {
-        //     color: 'whitesmoke'
-        // },
         elevation: 0,
     }
 };
 
 const styles = StyleSheet.create({
-    root: {
+    geral: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        // backgroundColor: 'whitesmoke'
-    }
+        marginBottom: 10,
+        marginHorizontal: 10,
+        alignItems: 'center'
+    },
 });
 
 export default TelaTocador;
