@@ -19,8 +19,7 @@
   "dependencies": {
     "fastify": "^3.9.2",
     "fastify-swagger": "^3.5.0",
-    "lunr": "^2.3.9",
-    "lunr-languages": "^1.4.0",
+    "lodash.deburr": "^4.1.0",
     "music-metadata": "^7.6.1",
     "pino-pretty": "^4.3.0",
     "uuid": "^8.3.2"

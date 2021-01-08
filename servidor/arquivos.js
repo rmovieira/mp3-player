@@ -2,42 +2,14 @@ const fs = require('fs');
 const mm = require('music-metadata');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-const lunr = require('lunr');
-// require("lunr-languages/lunr.stemmer.support")(lunr)
-// require("lunr-languages/lunr.pt")(lunr)
+const deburr = require('lodash.deburr');
 
 let arquivosCarregados;
-let indiceTextual;
 let carregandoArquivos = false;
 
 const recuperarTodas = () => {
     return Array.from(arquivosCarregados.values());
 }
-
-const indexar = async () => {
-    try {
-        indiceTextual = lunr(function () {
-            // this.use(lunr.pt)
-            this.ref('id');
-            this.field('texto');
-            // this.field('titulo');
-            // this.field('genero');
-            // this.field('album');
-            // this.field('artista');
-            // this.field('artistas');
-            for (let arquivoCarregado of arquivosCarregados) {
-                const { genero, titulo, artistas, album, arquivo, id } = arquivoCarregado[1];
-                const texto = [].concat(genero).concat(album).concat(titulo).concat(artistas).join(' ');
-                const dadosParaIndexar = { texto, id };
-                this.add(dadosParaIndexar);
-            }
-        });
-
-    } catch (erro) {
-        console.error('Não foi possível indexar:', erro.message);
-    }
-}
-
 
 const lerArquivos = async (diretorio) => {
     console.log('Carregando arquivos em:', diretorio);
@@ -71,22 +43,18 @@ const lerArquivos = async (diretorio) => {
     }
 }
 
-
 const pesquisar = texto => {
-    if (!indiceTextual || carregandoArquivos) {
-        return;
-    }
     const saida = [];
-    const resultado = indiceTextual.search(texto);
-    resultado.forEach(musica => {
-        console.log(musica.ref);
-        const arquivo = arquivosCarregados.get(musica.ref);
-        saida.push(arquivo);
-    });
-    console.log('saida', saida);
+    for (let arquivoCarregado of arquivosCarregados) {
+        const { genero, titulo, artistas, album, arquivo, id } = arquivoCarregado[1];
+        const textoDaMusica = [].concat(genero).concat(album).concat(titulo).concat(artistas).join(' ');
+        const achou = deburr(textoDaMusica).toLocaleLowerCase().indexOf(deburr(texto).toLocaleLowerCase());
+        if (achou > 0) {
+            saida.push(arquivoCarregado[1]);
+        }
+    }
     return saida;
 }
-
 
 const recuperarArquivo = idArquivo => {
     const arquivo = arquivosCarregados.get(idArquivo);
@@ -103,7 +71,6 @@ const recuperarArquivo = idArquivo => {
     carregandoArquivos = true;
     console.log('----Lendo os arquivos em : ' + diretorio);
     await lerArquivos(diretorio);
-    await indexar();
     console.log('Quantidade de arquivos encontrados:', arquivosCarregados.size);
     carregandoArquivos = false;
     console.log('----Leu os arquivos em : ' + diretorio);
