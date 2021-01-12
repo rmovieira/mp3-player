@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/rmovieira/mp3-player#readme",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "fastify": "^3.9.2",
     "fastify-swagger": "^3.5.0",
     "lodash.deburr": "^4.1.0",

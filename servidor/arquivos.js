@@ -1,6 +1,7 @@
 const fs = require('fs');
 const mm = require('music-metadata');
 const path = require('path');
+const dotenv = require('dotenv');
 const { v4: uuidv4 } = require('uuid');
 const deburr = require('lodash.deburr');
 
@@ -14,7 +15,7 @@ const recuperarTodas = () => {
 const lerArquivos = async (diretorio) => {
     console.log('Carregando arquivos em:', diretorio);
     if (!fs.existsSync(diretorio)) {
-        console.log(`O diretorio ${diretorio} não existe.`);
+        console.error(`O diretorio ${diretorio} não existe.`);
         return;
     }
 
@@ -39,7 +40,7 @@ const lerArquivos = async (diretorio) => {
             }
         }
     } catch (erro) {
-        console.error('there was an error:', erro.message);
+        console.error('Erro generico:', erro.message);
     }
 }
 
@@ -67,7 +68,8 @@ const recuperarArquivo = idArquivo => {
 
 (async function () {
     arquivosCarregados = new Map();
-    const diretorio = 'C:\\Users\\Romulo\\Documents\\mp3-player\\servidor\\musicas';
+    dotenv.config();
+    const diretorio = process.env.MUSICAS;
     carregandoArquivos = true;
     console.log('----Lendo os arquivos em : ' + diretorio);
     await lerArquivos(diretorio);
